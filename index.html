@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>War HUD Compact</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:Arial,sans-serif;
+background:radial-gradient(circle at top,#220000 0%,#050814 45%,#010204 100%);
+color:#fff;
+padding:12px;
+overflow-x:hidden;
+}
+
+.wrapper{max-width:950px;margin:auto}
+
+.hud{
+background:rgba(0,0,0,.35);
+border:2px solid rgba(255,0,0,.35);
+border-radius:26px;
+padding:14px;
+margin-bottom:14px;
+box-shadow:0 0 30px rgba(255,0,0,.18);
+}
+
+.title{
+text-align:center;
+font-size:32px;
+font-weight:900;
+margin-bottom:10px;
+}
+
+.title span{
+color:#ff3d3d;
+text-shadow:0 0 14px #ff3d3d;
+}
+
+.timerFrame{
+border:2px solid rgba(255,70,70,.5);
+border-radius:20px;
+padding:10px;
+margin-bottom:12px;
+}
+
+.mainTimer{
+width:100%;
+background:none;
+border:none;
+outline:none;
+text-align:center;
+font-size:82px;
+font-weight:900;
+color:#fff;
+text-shadow:0 0 12px #fff,0 0 25px rgba(255,0,0,.5);
+}
+
+.controls{
+display:flex;
+gap:8px;
+justify-content:center;
+flex-wrap:nowrap;
+}
+
+.btn{
+height:46px;
+padding:0 14px;
+min-width:110px;
+border:none;
+border-radius:14px;
+font-size:15px;
+font-weight:900;
+color:#fff;
+cursor:pointer;
+}
+
+.green{background:linear-gradient(135deg,#00cc70,#007948)}
+.red{background:linear-gradient(135deg,#ff3d3d,#9d1010)}
+.gold{background:linear-gradient(135deg,#ffbe0b,#9a6700)}
+.purple{background:linear-gradient(135deg,#9d5cff,#5d22cf)}
+
+.players{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.card{
+display:grid;
+grid-template-columns:62px 1fr 150px;
+gap:10px;
+align-items:center;
+padding:10px;
+background:rgba(0,0,0,.35);
+border:1px solid rgba(255,255,255,.08);
+border-radius:22px;
+box-shadow:0 0 16px rgba(0,0,0,.3);
+}
+
+.avatar{
+width:54px;
+height:54px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.center{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.name{
+width:100%;
+height:34px;
+border:none;
+border-radius:10px;
+padding:0 10px;
+background:#08101d;
+color:#fff;
+font-size:16px;
+font-weight:800;
+}
+
+.timerWrap{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+.timer{
+flex:1;
+height:58px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:14px;
+background:#070d18;
+border:1px solid rgba(255,255,255,.08);
+font-size:34px;
+font-weight:900;
+}
+
+.sec{
+width:58px;
+height:58px;
+border:none;
+border-radius:14px;
+background:#070d18;
+color:#fff;
+text-align:center;
+font-size:24px;
+font-weight:900;
+}
+
+.progress{
+height:8px;
+background:#101827;
+border-radius:20px;
+overflow:hidden;
+}
+
+.bar{
+height:100%;
+width:100%;
+transition:width 1s linear;
+}
+
+.right{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.action{
+height:38px;
+border:none;
+border-radius:12px;
+font-size:13px;
+font-weight:900;
+color:#fff;
+cursor:pointer;
+}
+
+.attack{
+background:linear-gradient(135deg,#ff4949,#b31217);
+}
+
+.delete{
+background:#182133;
+}
+
+.alert{
+animation:flash .7s infinite;
+}
+
+@keyframes flash{
+50%{
+transform:scale(1.01);
+box-shadow:0 0 25px rgba(255,0,0,.7);
+}
+}
+
+.footer{
+margin-top:12px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:8px;
+}
+
+.status{
+padding:10px;
+border-radius:14px;
+background:rgba(0,0,0,.3);
+border:1px solid rgba(255,255,255,.06);
+text-align:center;
+font-size:12px;
+font-weight:800;
+}
+
+@media(max-width:760px){
+
+.mainTimer{font-size:68px}
+
+.controls{
+flex-wrap:wrap;
+}
+
+.btn{
+min-width:95px;
+height:42px;
+font-size:13px;
+}
+
+.card{
+grid-template-columns:52px 1fr 120px;
+padding:8px;
+}
+
+.avatar{
+width:46px;
+height:46px;
+font-size:22px;
+}
+
+.timer{
+height:50px;
+font-size:28px;
+}
+
+.sec{
+width:50px;
+height:50px;
+font-size:20px;
+}
+
+.action{
+height:34px;
+font-size:11px;
+}
+
+.footer{
+grid-template-columns:1fr 1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="hud">
+
+<div class="title">🔥 WAR <span>ATTACK</span> TIMER 🔥</div>
+
+<div class="timerFrame">
+<input id="mainTimer" class="mainTimer" type="number" value="60">
+</div>
+
+<div class="controls">
+<button class="btn green" onclick="startWar()">START</button>
+<button class="btn red" onclick="stopAll()">STOP</button>
+<button class="btn gold" onclick="resetAll()">RESET</button>
+<button class="btn purple" onclick="addPlayer()">+ PLAYER</button>
+</div>
+
+</div>
+
+<div class="players" id="players"></div>
+
+<div class="footer">
+<div class="status">🚨 ALERT</div>
+<div class="status">🔊 SOUND</div>
+<div class="status">📳 VIBRATION</div>
+<div class="status">🏆 FAIR PLAY</div>
+</div>
+
+</div>
+
+<script>
+
+const avatars=["☠️","👑","🐋","🐍","🦁","⚔️"];
+const colors=["#ff9f1c","#9b5cff","#00bbff","#20df67","#ffd234"];
+
+const players=[];
+const wrap=document.getElementById("players");
+
+function beep(freq=1300){
+
+try{
+const ctx=new(window.AudioContext||window.webkitAudioContext)();
+const osc=ctx.createOscillator();
+const gain=ctx.createGain();
+
+osc.frequency.value=freq;
+gain.gain.value=.2;
+
+osc.connect(gain);
+gain.connect(ctx.destination);
+
+osc.start();
+
+setTimeout(()=>{
+osc.stop();
+ctx.close();
+},180);
+
+}catch(e){}
+
+}
+
+let savedMain=60;
+const main=document.getElementById("mainTimer");
+
+main.oninput=()=>savedMain=parseInt(main.value)||0;
+
+function createPlayer(name,sec,color,icon){
+
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+
+<div class="avatar"
+style="
+background:${color}22;
+border:2px solid ${color};
+color:${color};
+box-shadow:0 0 15px ${color};
+">
+${icon}
+</div>
+
+<div class="center">
+
+<input class="name" value="${name}">
+
+<div class="timerWrap">
+
+<div class="timer"
+style="
+color:${color};
+text-shadow:0 0 14px ${color};
+">
+00:${String(sec).padStart(2,'0')}
+</div>
+
+<input class="sec" type="number" value="${sec}">
+
+</div>
+
+<div class="progress">
+<div class="bar" style="background:${color}"></div>
+</div>
+
+</div>
+
+<div class="right">
+<button class="action attack">🔥 ATTACK</button>
+<button class="action delete">DELETE</button>
+</div>
+
+`;
+
+wrap.appendChild(card);
+
+const avatar=card.querySelector(".avatar");
+avatar.onclick=()=>{
+avatar.innerHTML=avatars[Math.floor(Math.random()*avatars.length)];
+};
+
+const secInput=card.querySelector(".sec");
+const timer=card.querySelector(".timer");
+const bar=card.querySelector(".bar");
+
+let saved=parseInt(secInput.value)||0;
+
+secInput.oninput=()=>saved=parseInt(secInput.value)||0;
+
+let interval=null;
+
+function start(){
+
+clearInterval(interval);
+
+let total=parseInt(secInput.value)||1;
+let time=total;
+
+interval=setInterval(()=>{
+
+time--;
+
+if(time<=3 && time>0){
+card.classList.add("alert");
+beep(1450);
+}
+
+if(time>3){
+card.classList.remove("alert");
+}
+
+if(time<=0){
+
+timer.innerHTML="GO";
+bar.style.width="0%";
+beep(500);
+
+clearInterval(interval);
+
+return;
+}
+
+timer.innerHTML="00:"+String(time).padStart(2,'0');
+bar.style.width=(time/total*100)+"%";
+
+},1000);
+
+}
+
+function stop(){
+clearInterval(interval);
+}
+
+function reset(){
+
+clearInterval(interval);
+
+timer.innerHTML="00:"+String(saved).padStart(2,'0');
+bar.style.width="100%";
+card.classList.remove("alert");
+
+}
+
+card.querySelector(".attack").onclick=start;
+
+card.querySelector(".delete").onclick=()=>card.remove();
+
+players.push({start,stop,reset});
+
+}
+
+let mainInterval=null;
+
+function startMain(){
+
+clearInterval(mainInterval);
+
+let t=parseInt(main.value)||1;
+
+mainInterval=setInterval(()=>{
+
+t--;
+main.value=t;
+
+if(t<=3 && t>0){
+beep(1300);
+}
+
+if(t<=0){
+
+main.value="GO";
+beep(500);
+
+clearInterval(mainInterval);
+
+}
+
+},1000);
+
+}
+
+function startWar(){
+startMain();
+players.forEach(p=>p.start());
+}
+
+function stopAll(){
+clearInterval(mainInterval);
+players.forEach(p=>p.stop());
+}
+
+function resetAll(){
+clearInterval(mainInterval);
+main.value=savedMain;
+players.forEach(p=>p.reset());
+}
+
+function addPlayer(){
+
+const i=Math.floor(Math.random()*colors.length);
+
+createPlayer("PLAYER",40,colors[i],avatars[i]);
+
+}
+
+createPlayer("orca.101",40,"#00bbff","🐋");
+
+
+
+</script>
+
+</body>
+</html>
